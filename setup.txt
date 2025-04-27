@@ -1,0 +1,5 @@
+Use a Web Service on Render.
+
+Expose port 3000 or set PORT as an environment variable.
+
+Set MQTT broker hostname to the public IP or domain of your Mosquitto broker.

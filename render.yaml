@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: parksahay-mqtt-server
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: MQTT_BROKER_URL
+        sync: false # This will be set manually in the Render dashboard
+    plan: free # or choose a paid plan if needed

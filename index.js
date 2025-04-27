@@ -11,15 +11,24 @@ app.use(cors());
 app.use(express.json());
 
 // MQTT Setup
-const brokerUrl = 'mqtt://your-broker-ip-or-url'; // Example: mqtt://broker.hivemq.com
-const client = mqtt.connect(brokerUrl, {
-  clientId: 'render-subscriber-server', 
+const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://localhost'; // Use environment variable or default to localhost
+console.log(`[MQTT] Connecting to broker: ${brokerUrl}`);
+
+// MQTT connection options
+const mqttOptions = {
+  clientId: `render-subscriber-server-${Math.random().toString(16).substring(2, 8)}`, // Add random suffix to avoid client ID conflicts
   clean: true,
   connectTimeout: 4000,
-  username: 'your-optional-username', // if authentication enabled
-  password: 'your-optional-password', // if authentication enabled
   reconnectPeriod: 1000,
-});
+};
+
+// Add authentication if provided in environment variables
+if (process.env.MQTT_USERNAME && process.env.MQTT_PASSWORD) {
+  mqttOptions.username = process.env.MQTT_USERNAME;
+  mqttOptions.password = process.env.MQTT_PASSWORD;
+}
+
+const client = mqtt.connect(brokerUrl, mqttOptions);
 
 // Store latest device states
 const deviceStates = {}; // Example: { 'module-001': 'HIGH' }
@@ -55,12 +64,12 @@ client.on('message', (topic, message) => {
 });
 
 // API to get all device states (for frontend connection)
-app.get('/api/devices', (req, res) => {
+app.get('/api/devices', (_, res) => {
   res.json(deviceStates);
 });
 
 // Health check
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.send('Server and MQTT Subscriber Running! 🚀');
 });
 
