@@ -29,6 +29,15 @@ Set the following environment variables in the Render dashboard:
 - `MQTT_USERNAME`: (Optional) Username for MQTT broker authentication
 - `MQTT_PASSWORD`: (Optional) Password for MQTT broker authentication
 
+#### Temporary Setup
+
+If you haven't set up your own MQTT broker yet, you can use a public test broker temporarily:
+
+- `MQTT_BROKER_URL`: `mqtt://broker.hivemq.com`
+- Leave `MQTT_USERNAME` and `MQTT_PASSWORD` blank
+
+**Important**: The public test broker should only be used for testing. It's not secure for production use and has limitations on connection time and message size. Replace with your own broker as soon as possible.
+
 ### Automatic Deployment with render.yaml
 
 This repository includes a `render.yaml` file for automatic deployment. You can use the "Blueprint" feature in Render to deploy directly from this configuration.

@@ -36,6 +36,7 @@ const deviceStates = {}; // Example: { 'module-001': 'HIGH' }
 // When connected to broker
 client.on('connect', () => {
   console.log(colors.green.bold('[MQTT] Connected to broker ✅'));
+  console.log(colors.green(`[MQTT] Using broker: ${brokerUrl}`));
 
   // Subscribe to all module status updates
   client.subscribe('sensors/+/status', (err) => {
@@ -45,6 +46,17 @@ client.on('connect', () => {
       console.error(colors.red('[MQTT] Subscription error ❌'), err);
     }
   });
+});
+
+// Handle connection errors
+client.on('error', (err) => {
+  console.error(colors.red('[MQTT] Connection error ❌'), err.message);
+  console.log(colors.yellow('[MQTT] Server will continue running, but no MQTT data will be received'));
+});
+
+// Handle reconnection attempts
+client.on('reconnect', () => {
+  console.log(colors.yellow('[MQTT] Attempting to reconnect to broker...'));
 });
 
 // When message is received
