@@ -1,40 +1,70 @@
-import express from 'express';
 import mqtt from 'mqtt';
+import express from 'express';
+import cors from 'cors';
+import colors from 'colors'; // Install using: npm install colors
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Store statuses in memory
-const deviceStatus = {}; // e.g., { PARKING_SLOT_01: "HIGH" }
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-const MQTT_BROKER = 'mqtt://your-broker-host:1883';
-const client = mqtt.connect(MQTT_BROKER);
+// MQTT Setup
+const brokerUrl = 'mqtt://your-broker-ip-or-url'; // Example: mqtt://broker.hivemq.com
+const client = mqtt.connect(brokerUrl, {
+  clientId: 'render-subscriber-server', 
+  clean: true,
+  connectTimeout: 4000,
+  username: 'your-optional-username', // if authentication enabled
+  password: 'your-optional-password', // if authentication enabled
+  reconnectPeriod: 1000,
+});
 
-// Subscribe to all status messages from any parking slot
-const topic = 'sensors/+/status';
+// Store latest device states
+const deviceStates = {}; // Example: { 'module-001': 'HIGH' }
 
+// When connected to broker
 client.on('connect', () => {
-  console.log('Connected to MQTT broker');
-  client.subscribe(topic, (err) => {
-    if (err) console.error('Subscribe error:', err);
-    else console.log(`Subscribed to topic: ${topic}`);
+  console.log(colors.green.bold('[MQTT] Connected to broker ✅'));
+
+  // Subscribe to all module status updates
+  client.subscribe('sensors/+/status', (err) => {
+    if (!err) {
+      console.log(colors.blue('[MQTT] Subscribed to sensors/+/status 📡'));
+    } else {
+      console.error(colors.red('[MQTT] Subscription error ❌'), err);
+    }
   });
 });
 
+// When message is received
 client.on('message', (topic, message) => {
-  const parts = topic.split('/');
-  const deviceId = parts[1];
+  const deviceId = topic.split('/')[1]; // sensors/{deviceId}/status
   const status = message.toString();
 
-  deviceStatus[deviceId] = status;
-  console.log(`[${deviceId}] => ${status}`);
+  deviceStates[deviceId] = status; // Save latest status
+
+  if (status.toUpperCase() === 'HIGH') {
+    console.log(colors.green(`[DATA] ${deviceId} ➔ HIGH 🚗`));
+  } else if (status.toUpperCase() === 'LOW') {
+    console.log(colors.red(`[DATA] ${deviceId} ➔ LOW 🅿️`));
+  } else {
+    console.log(colors.yellow(`[DATA] ${deviceId} ➔ Unknown Status`));
+  }
 });
 
-// Optional API to get latest statuses
-app.get('/status', (req, res) => {
-  res.json(deviceStatus);
+// API to get all device states (for frontend connection)
+app.get('/api/devices', (req, res) => {
+  res.json(deviceStates);
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+// Health check
+app.get('/', (req, res) => {
+  res.send('Server and MQTT Subscriber Running! 🚀');
+});
+
+// Start Express server
+app.listen(PORT, () => {
+  console.log(colors.cyan.bold(`[HTTP] Express server started on port ${PORT} 🌐`));
 });
