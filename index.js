@@ -26,12 +26,6 @@ const mqttOptions = {
   reconnectPeriod: 1000,
 };
 
-// Add authentication if provided in environment variables
-if (process.env.MQTT_USERNAME && process.env.MQTT_PASSWORD) {
-  mqttOptions.username = process.env.MQTT_USERNAME;
-  mqttOptions.password = process.env.MQTT_PASSWORD;
-}
-
 const client = mqtt.connect(brokerUrl, mqttOptions);
 
 // Store latest device states

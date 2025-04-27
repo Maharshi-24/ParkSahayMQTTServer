@@ -26,15 +26,14 @@ Set the following environment variables in the Render dashboard:
 
 - `PORT`: 3000 (or let Render assign a port)
 - `MQTT_BROKER_URL`: The URL of your MQTT broker (e.g., `mqtt://your-broker-ip-or-domain`)
-- `MQTT_USERNAME`: (Optional) Username for MQTT broker authentication
-- `MQTT_PASSWORD`: (Optional) Password for MQTT broker authentication
 
 #### Temporary Setup
 
 If you haven't set up your own MQTT broker yet, you can use a public test broker temporarily:
 
 - `MQTT_BROKER_URL`: `mqtt://broker.hivemq.com`
-- Leave `MQTT_USERNAME` and `MQTT_PASSWORD` blank
+
+Note: Authentication is not required for the public test broker. If you set up your own broker with authentication later, you can add the necessary environment variables at that time.
 
 **Important**: The public test broker should only be used for testing. It's not secure for production use and has limitations on connection time and message size. Replace with your own broker as soon as possible.
 
