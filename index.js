@@ -2,6 +2,10 @@ import mqtt from 'mqtt';
 import express from 'express';
 import cors from 'cors';
 import colors from 'colors'; // Install using: npm install colors
+import dotenv from 'dotenv'; // For loading environment variables from .env file
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
